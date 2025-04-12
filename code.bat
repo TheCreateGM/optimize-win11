@@ -1,175 +1,156 @@
 @echo off
 :: ============================================================================
-:: Windows 11 Basic Optimizer Script
+:: Batch Script to Fix Common Network Issues and Optimize Windows OS
 :: Version: 1.1
-:: Purpose: Perform common cleanup and optimization tasks.
-:: REQUIRES ADMINISTRATOR PRIVILEGES
-:: USE AT YOUR OWN RISK! Ensure backups are available.
+:: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
+title Network and OS Fix/Optimize Tool
 
-:: BatchGotAdmin
-:-------------------------------------
-REM --> Check for permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+:: Check for Administrator Privileges
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    echo Administrator privileges confirmed. Continuing...
+) else (
+    echo ERROR: This script requires Administrator privileges.
+    echo Please right-click the script and select 'Run as administrator'.
+    echo.
+    pause
+    exit /b 1
+)
 
-REM --> If error flag set, we do not have admin.
-if '%errorlevel%' NEQ '0' (
-    echo Requesting Administrative privileges...
-    goto UACPrompt
-) else ( goto gotAdmin )
-
-:UACPrompt
-    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-    set params = %*:"=""
-    echo UAC.ShellExecute "%~s0", "%params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
-
-    "%temp%\getadmin.vbs"
-    del "%temp%\getadmin.vbs"
-    exit /B
-
-:gotAdmin
-    if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs"
-    pushd "%CD%"
-    CD /D "%~dp0"
-:--------------------------------------
-
-:: Set Title
-title Windows 11 Optimizer - Running as Admin
-
-:: Clear Screen
+cls
+echo ============================================================================
+echo =             NETWORK AND OS FIX / OPTIMIZE TOOL                       =
+echo ============================================================================
+echo This script will attempt to:
+echo 1. Reset network configurations (IP, DNS, Winsock, TCP/IP).
+echo 2. Optionally reset the Windows Firewall to defaults.
+echo 3. Repair Windows system files and the component store (DISM, SFC).
+echo 4. Clean temporary files.
+echo 5. Optimize disk drives (Defrag/TRIM).
+echo.
+echo WARNING: Some steps require a system RESTART afterwards to complete.
+echo WARNING: Resetting the Firewall will REMOVE custom rules.
+echo.
+pause
 cls
 
 :: ============================================================================
-:: START OF SCRIPT
+echo SECTION 1: NETWORK FIXES
 :: ============================================================================
-echo ============================================================
-echo  Windows 11 Basic Optimizer
-echo ============================================================
 echo.
-echo IMPORTANT: This script will perform several system cleanup
-echo and optimization tasks. It requires Administrator rights.
-echo.
-echo TASKS TO BE PERFORMED:
-echo  - Clean Temporary Files (User & System)
-echo  - Clear Windows Update Cache
-echo  - Clear Prefetch Files
-echo  - Flush DNS Cache
-echo  - Run System File Checker (SFC)
-echo  - Run DISM CheckHealth, ScanHealth, RestoreHealth
-echo  - Optimize System Drive (Defrag/TRIM)
-echo  - Set Power Plan to High Performance (Optional - See Note Below)
-echo.
-echo NOTE ON POWER PLAN: High Performance can improve speed but
-echo increases power usage (especially on laptops). Balanced is
-echo often sufficient. This script sets it to High Performance.
-echo You can change it back later in Control Panel -> Power Options.
-echo.
-echo MAKE SURE YOU HAVE CLOSED IMPORTANT APPLICATIONS.
-echo Ensure you have backups of critical data before proceeding.
-echo.
-
-:Confirm
-set /p "confirm=Do you want to continue? (Y/N): "
-if /I not "%confirm%" == "Y" (
-    echo Aborted by user.
-    goto EndScript
-)
-
-echo Starting optimization tasks...
-echo.
-
-:: ------------------------------------------------------------
-echo [TASK 1/8] Cleaning Temporary Files...
-:: ------------------------------------------------------------
-echo  - Deleting User Temp Files...
-if exist "%TEMP%" rd /s /q "%TEMP%" > nul 2>&1
-md "%TEMP%" > nul 2>&1
-echo  - Deleting System Temp Files...
-if exist "%SystemRoot%\Temp" rd /s /q "%SystemRoot%\Temp" > nul 2>&1
-md "%SystemRoot%\Temp" > nul 2>&1
-echo Temporary file cleanup attempted.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 2/8] Clearing Windows Update Cache...
-:: ------------------------------------------------------------
-echo  - Stopping Windows Update Service...
-net stop wuauserv > nul 2>&1
-net stop bits > nul 2>&1
-echo  - Deleting Software Distribution Download folder...
-if exist "%SystemRoot%\SoftwareDistribution\Download" rd /s /q "%SystemRoot%\SoftwareDistribution\Download" > nul 2>&1
-echo  - Restarting Windows Update Service...
-net start wuauserv > nul 2>&1
-net start bits > nul 2>&1
-echo Windows Update Cache cleared.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 3/8] Clearing Prefetch Files...
-:: ------------------------------------------------------------
-REM Note: Benefit of clearing prefetch is debated, but it's a common tweak.
-echo  - Deleting Prefetch files...
-if exist "%SystemRoot%\Prefetch" rd /s /q "%SystemRoot%\Prefetch" > nul 2>&1
-md "%SystemRoot%\Prefetch" > nul 2>&1
-echo Prefetch files cleared.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 4/8] Flushing DNS Cache...
-:: ------------------------------------------------------------
+echo [INFO] Flushing DNS Resolver Cache...
 ipconfig /flushdns
-echo DNS Cache flushed.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 5/8] Running System File Checker (SFC)...
-:: ------------------------------------------------------------
-echo This may take some time...
-sfc /scannow
-echo SFC scan complete. Check output above for issues.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 6/8] Running DISM Commands...
-:: ------------------------------------------------------------
-echo Checking component store health (CheckHealth)...
-DISM /Online /Cleanup-Image /CheckHealth
-echo.
-echo Scanning component store health (ScanHealth)...
-DISM /Online /Cleanup-Image /ScanHealth
-echo.
-echo Attempting to repair component store (RestoreHealth)...
-echo This may take some time and requires an internet connection...
-DISM /Online /Cleanup-Image /RestoreHealth
-echo DISM commands complete. Check output above for issues.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 7/8] Optimizing System Drive (%SystemDrive%)...
-:: ------------------------------------------------------------
-echo This performs TRIM on SSDs or Defrag on HDDs...
-defrag %SystemDrive% /O
-echo System drive optimization complete.
-echo.
-pause
-:: ------------------------------------------------------------
-echo [TASK 8/8] Setting Power Plan to High Performance...
-:: ------------------------------------------------------------
-REM GUID for High Performance Plan (Usually the same, but standard)
-set HighPerfGUID=8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-echo Setting active power scheme to High Performance...
-powercfg /setactive %HighPerfGUID%
-echo Power plan set. You can change this in Control Panel -> Power Options.
 echo.
 
-:EndScript
-echo ============================================================
-echo  Optimization Tasks Attempted
-echo ============================================================
+echo [INFO] Releasing current IP configuration...
+ipconfig /release
+ipconfig /release6 >nul 2>&1
 echo.
-echo Please review the output above for any errors or messages.
+
+echo [INFO] Renewing IP configuration...
+ipconfig /renew
+ipconfig /renew6 >nul 2>&1
 echo.
-echo *** A RESTART IS RECOMMENDED to ensure all changes take effect cleanly. ***
+
+echo [INFO] Resetting Winsock Catalog... (Restart Recommended)
+netsh winsock reset
+echo.
+
+echo [INFO] Resetting TCP/IP Stack... (Restart Required)
+netsh int ip reset
+echo.
+
+:FIREWALL_RESET_PROMPT
+echo [ACTION REQUIRED] Reset Windows Firewall to Defaults?
+echo WARNING: This will remove ALL custom firewall rules.
+set /p ResetFirewall="Type 'YES' to reset, or 'NO' to skip: "
+echo.
+
+if /i "%ResetFirewall%"=="YES" (
+    echo [INFO] Resetting Windows Firewall...
+    netsh advfirewall reset
+    echo [INFO] Firewall reset to defaults.
+) else if /i "%ResetFirewall%"=="NO" (
+    echo [INFO] Skipping Firewall reset.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto FIREWALL_RESET_PROMPT
+)
+echo.
+echo [INFO] Network fixes applied. A restart is recommended later.
 echo.
 pause
-exit /b
+cls
+
+:: ============================================================================
+echo SECTION 2: WINDOWS OS OPTIMIZATION
+:: ============================================================================
+echo.
+echo [INFO] Starting Deployment Image Servicing and Management (DISM)...
+echo [INFO] This may take a while. Please wait...
+echo [INFO] Stage 1/3: Checking component store health...
+DISM /Online /Cleanup-Image /CheckHealth
+echo [INFO] Stage 2/3: Scanning component store health...
+DISM /Online /Cleanup-Image /ScanHealth
+echo [INFO] Stage 3/3: Attempting to repair component store (if needed)...
+DISM /Online /Cleanup-Image /RestoreHealth
+echo.
+echo [INFO] DISM operations completed.
+echo.
+pause
+echo.
+
+echo [INFO] Starting System File Checker (SFC)...
+echo [INFO] This will scan and attempt to repair protected system files.
+echo [INFO] This may take a significant amount of time. Please wait...
+sfc /scannow
+echo.
+echo [INFO] SFC scan completed. Check the output above for results.
+echo.
+pause
+echo.
+
+echo [INFO] Cleaning User and System Temporary Files...
+del /q /f /s %TEMP%\*.* >nul 2>&1
+del /q /f /s %SystemRoot%\Temp\*.* >nul 2>&1
+echo [INFO] Temporary files cleaned.
+echo.
+
+echo [INFO] Optimizing System Drive (typically C:)...
+echo [INFO] This performs Defrag on HDDs or TRIM on SSDs. May take time.
+defrag C: /O
+echo.
+echo [INFO] Drive optimization command issued.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 3: FINAL CHECKS AND COMPLETION
+:: ============================================================================
+echo.
+echo [INFO] Performing final connectivity tests...
+echo.
+echo Pinging Google DNS (8.8.8.8)...
+ping 8.8.8.8 -n 4
+echo.
+echo Pinging Google.com (testing DNS resolution)...
+ping google.com -n 4
+echo.
+
+echo ============================================================================
+echo =                           SCRIPT COMPLETE                              =
+echo ============================================================================
+echo.
+echo Network and OS optimization tasks have been executed.
+echo.
+echo *** IMPORTANT RECOMMENDATION ***
+echo A system RESTART is highly recommended to ensure all changes,
+echo especially the network stack resets (Winsock, TCP/IP),
+echo take full effect.
+echo.
+echo Please check the output above for any specific errors reported by commands.
+echo.
+pause
+exit /b 0
