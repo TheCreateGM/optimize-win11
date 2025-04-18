@@ -1,11 +1,11 @@
 @echo off
 :: ============================================================================
 :: Batch Script to Fix Common Network Issues, Optimize Windows OS,
-:: and Attempt Fixes for Common Black Screen Issues.
-:: Version: 1.2
+:: Attempt Fixes for Black Screen Issues, and Apply Lightweight Tweaks.
+:: Version: 1.3
 :: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
-title Network, OS, and Black Screen Fix/Optimize Tool
+title Lightweight Windows Fix/Optimize Tool
 
 :: Check for Administrator Privileges
 net session >nul 2>&1
@@ -21,22 +21,20 @@ if %errorLevel% == 0 (
 
 cls
 echo ============================================================================
-echo =      NETWORK, OS, AND BLACK SCREEN FIX / OPTIMIZE TOOL               =
+echo =       LIGHTWEIGHT WINDOWS FIX / OPTIMIZE TOOL                        =
 echo ============================================================================
 echo This script will attempt to:
 echo 1. Reset network configurations (IP, DNS, Winsock, TCP/IP).
 echo 2. Optionally reset the Windows Firewall to defaults.
 echo 3. Repair Windows system files and component store (DISM, SFC).
 echo 4. Clean temporary files and optimize disk drives (Defrag/TRIM).
-echo 5. Address common software causes of Black Screen issues:
-echo    - Disable Fast Startup.
-echo    - Schedule Check Disk (chkdsk) for C: on next reboot.
-echo    - Optionally clear the display configuration cache.
-echo    - Attempt to restart the Windows Explorer shell.
+echo 5. Address common software causes of Black Screen issues.
+echo 6. Apply "Lightweight" OS tweaks (Telemetry, Cortana, optional Search/Sysmain).
 echo.
 echo WARNING: MANY steps require a system RESTART afterwards to complete.
 echo WARNING: Resetting Firewall or Display Cache removes custom settings.
 echo WARNING: Check Disk runs before Windows loads on reboot and can take time.
+echo WARNING: "Lightweight" tweaks disable Windows features (like Search indexing).
 echo.
 pause
 cls
@@ -148,7 +146,9 @@ echo.
 if /i "%ClearCache%"=="YES" (
     echo [INFO] Clearing Display Configuration registry keys...
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Configuration" /f > nul 2>&1
+    reg delete "HKLM\SYSTEM\CurrentSet\Control\GraphicsDrivers\Configuration" /f > nul 2>&1 :: Added CurrentSet just in case
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Connectivity" /f > nul 2>&1
+    reg delete "HKLM\SYSTEM\CurrentSet\Control\GraphicsDrivers\Connectivity" /f > nul 2>&1 :: Added CurrentSet
     echo [INFO] Display configuration registry keys deleted (if they existed). Requires restart.
 ) else if /i "%ClearCache%"=="NO" (
     echo [INFO] Skipping Display Cache clear.
@@ -173,10 +173,10 @@ echo.
 echo [INFO] Cleaning User and System Temporary Files...
 del /q /f /s %TEMP%\*.* >nul 2>&1
 del /q /f /s %SystemRoot%\Temp\*.* >nul 2>&1
-rmdir /s /q %TEMP% >nul 2>&1
-mkdir %TEMP% >nul 2>&1
-rmdir /s /q %SystemRoot%\Temp >nul 2>&1
-mkdir %SystemRoot%\Temp >nul 2>&1
+rmdir /s /q "%TEMP%" >nul 2>&1
+mkdir "%TEMP%" >nul 2>&1
+rmdir /s /q "%SystemRoot%\Temp" >nul 2>&1
+mkdir "%SystemRoot%\Temp" >nul 2>&1
 echo [INFO] Temporary files cleaned.
 echo.
 
@@ -190,7 +190,102 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 4: FINAL CHECKS AND COMPLETION
+echo SECTION 4: LIGHTWEIGHT WINDOWS TWEAKS
+:: ============================================================================
+echo.
+echo [INFO] Applying potential lightweight OS tweaks...
+echo.
+
+:DISABLE_TELEMETRY_PROMPT
+echo [ACTION REQUIRED] Reduce Windows Telemetry (Data Collection)?
+echo          This reduces background data sending to Microsoft.
+set /p DisableTelemetry="Type 'YES' to reduce, or 'NO' to skip: "
+echo.
+
+if /i "%DisableTelemetry%"=="YES" (
+    echo [INFO] Reducing Windows Telemetry...
+    :: Set AllowTelemetry to 0 (Disables most data collection)
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f > nul 2>&1
+    echo [INFO] Telemetry reduced. Requires restart.
+) else if /i "%DisableTelemetry%"=="NO" (
+    echo [INFO] Skipping Telemetry reduction.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_TELEMETRY_PROMPT
+)
+echo.
+
+:DISABLE_CORTANA_PROMPT
+echo [ACTION REQUIRED] Disable Cortana?
+echo          This frees up resources if you don't use the assistant.
+set /p DisableCortana="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableCortana%"=="YES" (
+    echo [INFO] Disabling Cortana...
+    :: Set AllowCortana to 0
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f > nul 2>&1
+    echo [INFO] Cortana disabled. Requires restart.
+) else if /i "%DisableCortana%"=="NO" (
+    echo [INFO] Skipping Cortana disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_CORTANA_PROMPT
+)
+echo.
+
+:DISABLE_SEARCH_PROMPT
+echo [ACTION REQUIRED] Disable Windows Search Indexing Service?
+echo WARNING: This SIGNIFICANTLY reduces disk I/O and CPU usage for indexing,
+echo          BUT makes Windows Search (Start Menu, File Explorer search) very slow or unusable.
+echo          ONLY do this if you understand the trade-off and rarely use Windows Search.
+set /p DisableSearch="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableSearch%"=="YES" (
+    echo [INFO] Disabling Windows Search service...
+    :: Stop and disable the Windows Search service
+    sc stop "WSearch" > nul 2>&1
+    sc config "WSearch" start=disabled > nul 2>&1
+    echo [INFO] Windows Search indexing service disabled. Requires restart.
+    echo WARNING: Windows Search functionality will be severely impacted.
+) else if /i "%DisableSearch%"=="NO" (
+    echo [INFO] Skipping Windows Search disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_SEARCH_PROMPT
+)
+echo.
+
+:DISABLE_SYSMAIN_PROMPT
+echo [ACTION REQUIRED] Disable Superfetch / Sysmain Service?
+echo          This service preloads frequently used data.
+echo          Disabling *might* help high disk usage on older systems,
+echo          but often benefits SSDs. Test if needed.
+set /p DisableSysmain="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableSysmain%"=="YES" (
+    echo [INFO] Disabling Superfetch / Sysmain service...
+    :: Stop and disable the Sysmain service (formerly Superfetch)
+    sc stop "Sysmain" > nul 2>&1
+    sc config "Sysmain" start=disabled > nul 2>&1
+    echo [INFO] Superfetch / Sysmain service disabled. Requires restart.
+) else if /i "%DisableSysmain%"=="NO" (
+    echo [INFO] Skipping Superfetch / Sysmain disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_SYSMAIN_PROMPT
+)
+echo.
+
+echo [INFO] Lightweight tweaks section completed.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 5: FINAL CHECKS AND COMPLETION
 :: ============================================================================
 echo.
 echo [INFO] Performing final connectivity tests...
@@ -206,17 +301,18 @@ echo ===========================================================================
 echo =                           SCRIPT COMPLETE                              =
 echo ============================================================================
 echo.
-echo Network, OS optimization, and black screen fix tasks have been executed.
-echo Check the output above for any specific errors reported by commands.
+echo All selected network, OS optimization, black screen fix, and lightweight
+echo tasks have been executed. Check the output above for any specific errors.
 echo.
 echo *** CRITICAL REMINDER ***
 echo A system RESTART is NOW STRONGLY RECOMMENDED!
 echo Many changes (Network Resets, Fast Startup, Check Disk scheduling,
-echo Display Cache) require a restart to take effect.
+echo Display Cache, Lightweight Tweaks) require a restart to take effect.
 echo The Check Disk scan will run automatically on C: during the next boot.
 echo.
 echo If you still experience issues after restarting, further troubleshooting
-echo (e.g., checking drivers in Safe Mode, hardware diagnostics) may be needed.
+echo (e.g., checking drivers in Safe Mode, hardware diagnostics, reversing
+echo lightweight tweaks if they caused issues) may be needed.
 echo.
 pause
 exit /b 0
