@@ -1,11 +1,11 @@
 @echo off
 :: ============================================================================
-:: Batch Script to Fix Common Network Issues, Optimize Windows OS,
-:: Attempt Fixes for Black Screen Issues, and Apply Lightweight Tweaks.
-:: Version: 1.3
+:: Batch Script for Advanced Windows Troubleshooting, Optimization,
+:: Black Screen Fix Attempts, Lightweight Tweaks, and BSOD Guidance.
+:: Version: 1.4
 :: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
-title Lightweight Windows Fix/Optimize Tool
+title Advanced Windows Troubleshoot Tool
 
 :: Check for Administrator Privileges
 net session >nul 2>&1
@@ -21,20 +21,22 @@ if %errorLevel% == 0 (
 
 cls
 echo ============================================================================
-echo =       LIGHTWEIGHT WINDOWS FIX / OPTIMIZE TOOL                        =
+echo =          ADVANCED WINDOWS TROUBLESHOOT / OPTIMIZE TOOL               =
 echo ============================================================================
 echo This script will attempt to:
-echo 1. Reset network configurations (IP, DNS, Winsock, TCP/IP).
-echo 2. Optionally reset the Windows Firewall to defaults.
+echo 1. Reset network configurations.
+echo 2. Optionally reset the Windows Firewall.
 echo 3. Repair Windows system files and component store (DISM, SFC).
-echo 4. Clean temporary files and optimize disk drives (Defrag/TRIM).
+echo 4. Clean temporary files and optimize disk drives.
 echo 5. Address common software causes of Black Screen issues.
-echo 6. Apply "Lightweight" OS tweaks (Telemetry, Cortana, optional Search/Sysmain).
+echo 6. Apply "Lightweight" OS tweaks (Optional Telemetry, Cortana, Search, Sysmain).
+echo 7. Provide information and suggest manual steps for troubleshooting BSODs.
 echo.
 echo WARNING: MANY steps require a system RESTART afterwards to complete.
 echo WARNING: Resetting Firewall or Display Cache removes custom settings.
 echo WARNING: Check Disk runs before Windows loads on reboot and can take time.
-echo WARNING: "Lightweight" tweaks disable Windows features (like Search indexing).
+echo WARNING: "Lightweight" tweaks disable Windows features.
+echo WARNING: This script DOES NOT automatically fix hardware problems.
 echo.
 pause
 cls
@@ -285,7 +287,64 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 5: FINAL CHECKS AND COMPLETION
+echo SECTION 5: BSOD INFORMATION AND MANUAL DIAGNOSTIC STEPS
+:: ============================================================================
+echo.
+echo [INFO] Information and Manual Steps for BSOD Troubleshooting:
+echo.
+echo This script has run various fixes for common *software* causes of BSODs
+echo (corrupted system files, file system errors, potentially unstable settings).
+echo However, BSODs are often caused by hardware issues.
+echo.
+echo Batch scripts CANNOT directly test CPU, RAM, SSD physical health, or PSU.
+echo If BSODs persist after restarting, consider these MANUAL steps:
+echo.
+echo 1. Check Event Viewer:
+echo    - Press Windows Key + R, type "eventvwr.msc" and press Enter.
+echo    - Navigate to "Windows Logs" -> "System".
+echo    - Look for Error or Critical events around the time of the BSOD.
+echo    - Look for "BugCheck" events. Note the "Stop Code" (e.g., PAGE_FAULT_IN_NONPAGED_AREA)
+echo      and associated parameters. This is the MOST important clue.
+echo    - Search online for the specific Stop Code you find.
+echo.
+echo 2. Test RAM:
+echo    - Press Windows Key + R, type "mdsched.exe" and press Enter.
+echo    - Choose to restart now and check for problems.
+echo    - This tool runs a memory test before Windows fully loads.
+echo    - If it finds errors, your RAM is likely faulty.
+echo.
+echo 3. Check Drive Health:
+echo    - This script scheduled a thorough Check Disk (chkdsk) for C: on reboot.
+echo      This fixes *file system* errors.
+echo    - For physical drive health (SSD or HDD), use tools that read S.M.A.R.T. data
+echo      (e.g., CrystalDiskInfo, or `wmic diskdrive get status` in an Admin Command Prompt -
+echo      though wmic is basic).
+echo.
+echo 4. Check Component Temperatures:
+echo    - Overheating CPU or GPU is a common cause of instability/BSODs, especially under load.
+echo    - Download a hardware monitoring tool (e.g., HWMonitor, HWiNFO) to check temps.
+echo.
+echo 5. Stress Test Components (Advanced):
+echo    - If temps are okay, you might need to test components under load.
+echo    - Tools like Prime95 (CPU), FurMark (GPU), or MemTest86 (RAM - separate bootable tool)
+echo      can help identify instability when the component is stressed.
+echo.
+echo 6. Check Power Supply Unit (PSU):
+echo    - A failing PSU can cause random crashes, especially under heavy system load.
+echo    - Harder to diagnose. Look for symptoms like shutdowns instead of BSODs, or issues only under load.
+echo    - May require swapping the PSU to test.
+echo.
+echo 7. Update/Rollback Drivers:
+echo    - Graphics drivers, network drivers, and storage controller drivers are common BSOD culprits.
+echo    - Try updating them or rolling back to a previous stable version.
+echo.
+echo Consider using Safe Mode to troubleshoot driver issues if BSODs prevent normal boot.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 6: FINAL CHECKS AND COMPLETION
 :: ============================================================================
 echo.
 echo [INFO] Performing final connectivity tests...
@@ -301,18 +360,17 @@ echo ===========================================================================
 echo =                           SCRIPT COMPLETE                              =
 echo ============================================================================
 echo.
-echo All selected network, OS optimization, black screen fix, and lightweight
-echo tasks have been executed. Check the output above for any specific errors.
+echo All selected network, OS optimization, black screen fix, lightweight
+echo tweaks, and internal BSOD-related fixes (SFC, DISM, Chkdsk) have been executed.
+echo.
+echo Refer to SECTION 5 in the output above for guidance on MANUAL steps
+echo to diagnose potential HARDWARE causes of BSODs if they continue.
 echo.
 echo *** CRITICAL REMINDER ***
 echo A system RESTART is NOW STRONGLY RECOMMENDED!
 echo Many changes (Network Resets, Fast Startup, Check Disk scheduling,
 echo Display Cache, Lightweight Tweaks) require a restart to take effect.
 echo The Check Disk scan will run automatically on C: during the next boot.
-echo.
-echo If you still experience issues after restarting, further troubleshooting
-echo (e.g., checking drivers in Safe Mode, hardware diagnostics, reversing
-echo lightweight tweaks if they caused issues) may be needed.
 echo.
 pause
 exit /b 0
