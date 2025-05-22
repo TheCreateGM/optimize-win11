@@ -1,11 +1,12 @@
 @echo off
 :: ============================================================================
 :: Batch Script for Advanced Windows Troubleshooting, Optimization,
-:: Black Screen Fix Attempts, Lightweight Tweaks, and BSOD Guidance.
-:: Version: 1.4
+:: Black Screen Fix Attempts, Enhanced Cleanup, Performance Tweaks,
+:: Privacy Adjustments, Update Resets, and BSOD Guidance.
+:: Version: 2.0
 :: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
-title Advanced Windows Troubleshoot Tool
+title Advanced Windows Troubleshoot & Optimize Tool v2.0
 
 :: Check for Administrator Privileges
 net session >nul 2>&1
@@ -21,21 +22,24 @@ if %errorLevel% == 0 (
 
 cls
 echo ============================================================================
-echo =          ADVANCED WINDOWS TROUBLESHOOT / OPTIMIZE TOOL               =
+echo =      ADVANCED WINDOWS TROUBLESHOOT / OPTIMIZE / MAINTAIN TOOL        =
 echo ============================================================================
 echo This script will attempt to:
-echo 1. Reset network configurations.
-echo 2. Optionally reset the Windows Firewall.
-echo 3. Repair Windows system files and component store (DISM, SFC).
-echo 4. Clean temporary files and optimize disk drives.
-echo 5. Address common software causes of Black Screen issues.
-echo 6. Apply "Lightweight" OS tweaks (Optional Telemetry, Cortana, Search, Sysmain).
-echo 7. Provide information and suggest manual steps for troubleshooting BSODs.
+echo 1. Reset network configurations (IP, Winsock, optional Firewall).
+echo 2. Repair Windows system files and component store (DISM, SFC).
+echo 3. Perform OS Optimizations, Enhanced Disk Cleanup, and Black Screen Fixes.
+echo    (Temp Files, Windows Update Cache, Prefetch, Fast Startup, Display Cache, Explorer Restart, Drive Optimization)
+echo 4. Apply Performance & Responsiveness Tweaks (Visual Effects, Power Plan).
+echo 5. Adjust Privacy settings and disable selected Background Services/Features
+echo    (Telemetry, Cortana, Search Indexing, Sysmain, DiagTrack, CEIP, Ad ID).
+echo 6. Provide guidance on Memory Optimization.
+echo 7. Perform Driver & Windows Update Maintenance (Reset Update Components, Trigger Scan).
+echo 8. Provide information and suggest manual steps for troubleshooting BSODs.
 echo.
 echo WARNING: MANY steps require a system RESTART afterwards to complete.
 echo WARNING: Resetting Firewall or Display Cache removes custom settings.
 echo WARNING: Check Disk runs before Windows loads on reboot and can take time.
-echo WARNING: "Lightweight" tweaks disable Windows features.
+echo WARNING: Some tweaks disable Windows features or change system behavior.
 echo WARNING: This script DOES NOT automatically fix hardware problems.
 echo.
 pause
@@ -129,9 +133,44 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 3: OS OPTIMIZATION & BLACK SCREEN FIX ATTEMPTS
+echo SECTION 3: OS OPTIMIZATION, ENHANCED CLEANUP & BLACK SCREEN FIX ATTEMPTS
 :: ============================================================================
 echo.
+echo [INFO] Cleaning User and System Temporary Files...
+del /q /f /s %TEMP%\*.* >nul 2>&1
+del /q /f /s %SystemRoot%\Temp\*.* >nul 2>&1
+if exist "%TEMP%" rmdir /s /q "%TEMP%" >nul 2>&1
+mkdir "%TEMP%" >nul 2>&1
+if exist "%SystemRoot%\Temp" rmdir /s /q "%SystemRoot%\Temp" >nul 2>&1
+mkdir "%SystemRoot%\Temp" >nul 2>&1
+echo [INFO] Temporary files cleaned.
+echo.
+
+echo [INFO] Cleaning Prefetch Files...
+if exist "%SystemRoot%\Prefetch\*.*" del /q /f /s %SystemRoot%\Prefetch\*.* >nul 2>&1
+echo [INFO] Prefetch files cleaned.
+echo.
+
+echo [INFO] Attempting to clean Windows Update Cache (SoftwareDistribution)...
+net stop wuauserv >nul 2>&1
+net stop bits >nul 2>&1
+net stop cryptSvc >nul 2>&1 :: Often related
+if exist "%SystemRoot%\SoftwareDistribution.old" rmdir /s /q "%SystemRoot%\SoftwareDistribution.old" >nul 2>&1
+if exist "%SystemRoot%\SoftwareDistribution" ren "%SystemRoot%\SoftwareDistribution" "SoftwareDistribution.old" >nul 2>&1
+net start wuauserv >nul 2>&1
+net start bits >nul 2>&1
+net start cryptSvc >nul 2>&1
+echo [INFO] Windows Update Cache (SoftwareDistribution) cleared. A new one will be generated.
+echo.
+
+echo [INFO] Running Windows Disk Cleanup (automated, non-interactive for low disk space preset)...
+echo        This may take a few minutes.
+cleanmgr /verylowdisk /d C: > nul 2>&1
+echo [INFO] Windows Disk Cleanup initiated.
+echo.
+pause
+echo.
+
 echo [INFO] Disabling Fast Startup (Helps prevent some boot/resume issues)...
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f > nul 2>&1
 echo [INFO] Fast Startup disabled. Change takes effect after restart.
@@ -148,9 +187,8 @@ echo.
 if /i "%ClearCache%"=="YES" (
     echo [INFO] Clearing Display Configuration registry keys...
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Configuration" /f > nul 2>&1
-    reg delete "HKLM\SYSTEM\CurrentSet\Control\GraphicsDrivers\Configuration" /f > nul 2>&1 :: Added CurrentSet just in case
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Connectivity" /f > nul 2>&1
-    reg delete "HKLM\SYSTEM\CurrentSet\Control\GraphicsDrivers\Connectivity" /f > nul 2>&1 :: Added CurrentSet
+    reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\ScaleFactors" /f > nul 2>&1 :: Another related key
     echo [INFO] Display configuration registry keys deleted (if they existed). Requires restart.
 ) else if /i "%ClearCache%"=="NO" (
     echo [INFO] Skipping Display Cache clear.
@@ -172,16 +210,6 @@ echo.
 pause
 echo.
 
-echo [INFO] Cleaning User and System Temporary Files...
-del /q /f /s %TEMP%\*.* >nul 2>&1
-del /q /f /s %SystemRoot%\Temp\*.* >nul 2>&1
-rmdir /s /q "%TEMP%" >nul 2>&1
-mkdir "%TEMP%" >nul 2>&1
-rmdir /s /q "%SystemRoot%\Temp" >nul 2>&1
-mkdir "%SystemRoot%\Temp" >nul 2>&1
-echo [INFO] Temporary files cleaned.
-echo.
-
 echo [INFO] Optimizing System Drive (typically C:)...
 echo [INFO] This performs Defrag on HDDs or TRIM on SSDs. May take time.
 defrag C: /O
@@ -192,10 +220,63 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 4: LIGHTWEIGHT WINDOWS TWEAKS
+echo SECTION 4: PERFORMANCE & RESPONSIVENESS TWEAKS
 :: ============================================================================
 echo.
-echo [INFO] Applying potential lightweight OS tweaks...
+:VISUAL_EFFECTS_PROMPT
+echo [ACTION REQUIRED] Adjust Visual Effects for Best Performance?
+echo          This disables most animations and visual niceties for snappier response.
+set /p AdjustVisuals="Type 'YES' to adjust, or 'NO' to skip: "
+echo.
+
+if /i "%AdjustVisuals%"=="YES" (
+    echo [INFO] Adjusting Visual Effects for Best Performance...
+    :: This registry key controls the "Adjust for best performance" setting
+    :: It sets UserPreferencesMask to a value that disables most effects.
+    :: 9E = visual styles on windows and buttons enabled (keeps it looking mostly modern)
+    :: 1E = visual styles off (classic look) - going with 9E as less jarring
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFxSetting /t REG_DWORD /d 2 /f > nul 2>&1
+    reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f > nul 2>&1
+    :: Specific items (0=disable, 1=enable)
+    reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /d "0" /f > nul 2>&1
+    echo [INFO] Visual Effects set for best performance. Log off/on or restart may be needed for full effect.
+) else if /i "%AdjustVisuals%"=="NO" (
+    echo [INFO] Skipping Visual Effects adjustment.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto VISUAL_EFFECTS_PROMPT
+)
+echo.
+
+:POWER_PLAN_PROMPT
+echo [ACTION REQUIRED] Set Power Plan to High Performance?
+echo          This can improve performance but uses more energy.
+echo          NOT recommended for laptops on battery power for extended periods.
+set /p SetHighPerf="Type 'YES' to set, or 'NO' to skip: "
+echo.
+
+if /i "%SetHighPerf%"=="YES" (
+    echo [INFO] Setting Power Plan to High Performance...
+    :: GUID for High Performance power scheme
+    powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > nul 2>&1
+    echo [INFO] Power Plan set to High Performance.
+) else if /i "%SetHighPerf%"=="NO" (
+    echo [INFO] Skipping Power Plan adjustment.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto POWER_PLAN_PROMPT
+)
+echo.
+echo [INFO] Performance & Responsiveness tweaks section completed.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 5: PRIVACY, SERVICES & LIGHTWEIGHT WINDOWS TWEAKS
+:: ============================================================================
+echo.
+echo [INFO] Applying potential privacy adjustments and lightweight OS tweaks...
 echo.
 
 :DISABLE_TELEMETRY_PROMPT
@@ -206,7 +287,6 @@ echo.
 
 if /i "%DisableTelemetry%"=="YES" (
     echo [INFO] Reducing Windows Telemetry...
-    :: Set AllowTelemetry to 0 (Disables most data collection)
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f > nul 2>&1
     echo [INFO] Telemetry reduced. Requires restart.
 ) else if /i "%DisableTelemetry%"=="NO" (
@@ -214,6 +294,62 @@ if /i "%DisableTelemetry%"=="YES" (
 ) else (
     echo Invalid input. Please type 'YES' or 'NO'.
     goto DISABLE_TELEMETRY_PROMPT
+)
+echo.
+
+:DISABLE_DIAGTRACK_PROMPT
+echo [ACTION REQUIRED] Disable Connected User Experiences and Telemetry Service (DiagTrack)?
+echo          This service sends diagnostic and usage data.
+set /p DisableDiagTrack="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+if /i "%DisableDiagTrack%"=="YES" (
+    echo [INFO] Disabling DiagTrack service...
+    sc stop "DiagTrack" > nul 2>&1
+    sc config "DiagTrack" start=disabled > nul 2>&1
+    echo [INFO] DiagTrack service disabled. Requires restart.
+) else if /i "%DisableDiagTrack%"=="NO" (
+    echo [INFO] Skipping DiagTrack disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_DIAGTRACK_PROMPT
+)
+echo.
+
+:DISABLE_CEIP_PROMPT
+echo [ACTION REQUIRED] Disable Customer Experience Improvement Program (CEIP) Scheduled Tasks?
+echo          These tasks collect data for CEIP.
+set /p DisableCEIP="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+if /i "%DisableCEIP%"=="YES" (
+    echo [INFO] Disabling CEIP scheduled tasks...
+    schtasks /Change /TN "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /DISABLE > nul 2>&1
+    schtasks /Change /TN "Microsoft\Windows\Application Experience\ProgramDataUpdater" /DISABLE > nul 2>&1
+    schtasks /Change /TN "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /DISABLE > nul 2>&1
+    schtasks /Change /TN "Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /DISABLE > nul 2>&1
+    schtasks /Change /TN "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /DISABLE > nul 2>&1
+    echo [INFO] CEIP scheduled tasks disabled.
+) else if /i "%DisableCEIP%"=="NO" (
+    echo [INFO] Skipping CEIP tasks disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_CEIP_PROMPT
+)
+echo.
+
+:DISABLE_ADID_PROMPT
+echo [ACTION REQUIRED] Disable Advertising ID for app tracking?
+echo          This prevents apps from using your Advertising ID for personalized ads.
+set /p DisableAdID="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+if /i "%DisableAdID%"=="YES" (
+    echo [INFO] Disabling Advertising ID...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f > nul 2>&1
+    echo [INFO] Advertising ID disabled for current user. Log off/on may be needed.
+) else if /i "%DisableAdID%"=="NO" (
+    echo [INFO] Skipping Advertising ID disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_ADID_PROMPT
 )
 echo.
 
@@ -225,7 +361,6 @@ echo.
 
 if /i "%DisableCortana%"=="YES" (
     echo [INFO] Disabling Cortana...
-    :: Set AllowCortana to 0
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f > nul 2>&1
     echo [INFO] Cortana disabled. Requires restart.
 ) else if /i "%DisableCortana%"=="NO" (
@@ -246,7 +381,6 @@ echo.
 
 if /i "%DisableSearch%"=="YES" (
     echo [INFO] Disabling Windows Search service...
-    :: Stop and disable the Windows Search service
     sc stop "WSearch" > nul 2>&1
     sc config "WSearch" start=disabled > nul 2>&1
     echo [INFO] Windows Search indexing service disabled. Requires restart.
@@ -262,14 +396,13 @@ echo.
 :DISABLE_SYSMAIN_PROMPT
 echo [ACTION REQUIRED] Disable Superfetch / Sysmain Service?
 echo          This service preloads frequently used data.
-echo          Disabling *might* help high disk usage on older systems,
-echo          but often benefits SSDs. Test if needed.
+echo          Disabling *might* help high disk usage on older systems/HDDs,
+echo          but its benefits/drawbacks can vary. Often fine to leave on SSDs.
 set /p DisableSysmain="Type 'YES' to disable, or 'NO' to skip: "
 echo.
 
 if /i "%DisableSysmain%"=="YES" (
     echo [INFO] Disabling Superfetch / Sysmain service...
-    :: Stop and disable the Sysmain service (formerly Superfetch)
     sc stop "Sysmain" > nul 2>&1
     sc config "Sysmain" start=disabled > nul 2>&1
     echo [INFO] Superfetch / Sysmain service disabled. Requires restart.
@@ -281,20 +414,122 @@ if /i "%DisableSysmain%"=="YES" (
 )
 echo.
 
-echo [INFO] Lightweight tweaks section completed.
+echo [INFO] Privacy, Services & Lightweight tweaks section completed.
 echo.
 pause
 cls
 
 :: ============================================================================
-echo SECTION 5: BSOD INFORMATION AND MANUAL DIAGNOSTIC STEPS
+echo SECTION 6: MEMORY OPTIMIZATION GUIDANCE
+:: ============================================================================
+echo.
+echo [INFO] Memory Optimization Guidance:
+echo.
+echo True "RAM Cleaning" or "Memory Optimization" by scripts is limited.
+echo Windows has its own memory management. Aggressive third-party "RAM boosters"
+echo can sometimes be counterproductive by forcing data out of cache that
+echo Windows would have managed efficiently.
+echo.
+echo This script has already taken steps that can indirectly help memory usage:
+echo   - Disabling optional services like Sysmain, Cortana, Search Indexing, DiagTrack
+echo     (if you chose to) frees up the RAM those services were using.
+echo.
+echo General Best Practices for Managing Memory:
+echo   1. Restart Your Computer Regularly: This is the simplest way to clear RAM.
+echo   2. Close Unused Applications: Programs consume RAM even when minimized.
+echo   3. Limit Startup Programs: Too many programs starting with Windows can bog down
+echo      your system and consume memory from the start. (Manage via Task Manager > Startup).
+echo   4. Check for Memory-Hungry Processes: Use Task Manager (Ctrl+Shift+Esc)
+echo      to see which applications are using the most memory.
+echo   5. Consider Hardware Upgrades: If you consistently run out of RAM, you may
+echo      need to install more physical RAM.
+echo.
+echo Advanced Note: Tools like "EmptyStandbyList.exe" (from Sysinternals-like community tools)
+echo can clear standby memory, which *might* be useful in specific scenarios for developers
+echo or testers, but is generally not needed for typical users.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 7: DRIVER & WINDOWS UPDATE MAINTENANCE
+:: ============================================================================
+echo.
+:RESET_UPDATE_COMPONENTS_PROMPT
+echo [ACTION REQUIRED] Reset Windows Update Components?
+echo          This can help resolve issues with Windows Update failing to download or install.
+echo          It involves stopping services, renaming cache folders, and re-registering DLLs.
+set /p ResetUpdates="Type 'YES' to reset, or 'NO' to skip: "
+echo.
+
+if /i "%ResetUpdates%"=="YES" (
+    echo [INFO] Resetting Windows Update Components...
+    echo [INFO] Stopping services...
+    net stop bits > nul 2>&1
+    net stop wuauserv > nul 2>&1
+    net stop appidsvc > nul 2>&1
+    net stop cryptsvc > nul 2>&1
+
+    echo [INFO] Renaming SoftwareDistribution and Catroot2 folders...
+    if exist "%SystemRoot%\SoftwareDistribution.old.bak" rmdir /s /q "%SystemRoot%\SoftwareDistribution.old.bak" >nul 2>&1
+    if exist "%SystemRoot%\Catroot2.old.bak" rmdir /s /q "%SystemRoot%\Catroot2.old.bak" >nul 2>&1
+
+    if exist "%SystemRoot%\SoftwareDistribution.old" ren "%SystemRoot%\SoftwareDistribution.old" "SoftwareDistribution.old.bak" >nul 2>&1
+    if exist "%SystemRoot%\System32\Catroot2.old" ren "%SystemRoot%\System32\Catroot2.old" "Catroot2.old.bak" >nul 2>&1
+
+    if exist "%SystemRoot%\SoftwareDistribution" ren "%SystemRoot%\SoftwareDistribution" "SoftwareDistribution.old" >nul 2>&1
+    if exist "%SystemRoot%\System32\Catroot2" ren "%SystemRoot%\System32\Catroot2" "Catroot2.old" >nul 2>&1
+    
+    echo [INFO] Resetting Winsock (can be related to update download issues)...
+    netsh winsock reset > nul 2>&1
+    
+    echo [INFO] Starting services...
+    net start bits > nul 2>&1
+    net start wuauserv > nul 2>&1
+    net start appidsvc > nul 2>&1
+    net start cryptsvc > nul 2>&1
+    
+    echo [INFO] Windows Update components reset. A restart might be beneficial.
+) else if /i "%ResetUpdates%"=="NO" (
+    echo [INFO] Skipping Windows Update Components reset.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto RESET_UPDATE_COMPONENTS_PROMPT
+)
+echo.
+
+:TRIGGER_UPDATE_SCAN_PROMPT
+echo [ACTION REQUIRED] Trigger a Windows Update Scan?
+echo          This will attempt to initiate a check for new updates.
+set /p TriggerScan="Type 'YES' to scan, or 'NO' to skip: "
+echo.
+if /i "%TriggerScan%"=="YES" (
+    echo [INFO] Triggering Windows Update scan...
+    REM Modern method for initiating scan
+    powershell.exe -Command "(New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher().Search('IsInstalled=0').Updates.Count" > nul 2>&1
+    usoclient StartScan > nul 2>&1
+    echo [INFO] Windows Update scan initiated. Check Windows Update settings for progress.
+) else if /i "%TriggerScan%"=="NO" (
+    echo [INFO] Skipping Windows Update scan.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto TRIGGER_UPDATE_SCAN_PROMPT
+)
+echo.
+echo [INFO] Driver & Windows Update Maintenance section completed.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 8: BSOD INFORMATION AND MANUAL DIAGNOSTIC STEPS
 :: ============================================================================
 echo.
 echo [INFO] Information and Manual Steps for BSOD Troubleshooting:
 echo.
 echo This script has run various fixes for common *software* causes of BSODs
-echo (corrupted system files, file system errors, potentially unstable settings).
-echo However, BSODs are often caused by hardware issues.
+echo (corrupted system files, file system errors, potentially unstable settings, update issues).
+echo However, BSODs are often caused by hardware issues or problematic drivers.
 echo.
 echo Batch scripts CANNOT directly test CPU, RAM, SSD physical health, or PSU.
 echo If BSODs persist after restarting, consider these MANUAL steps:
@@ -336,7 +571,8 @@ echo    - May require swapping the PSU to test.
 echo.
 echo 7. Update/Rollback Drivers:
 echo    - Graphics drivers, network drivers, and storage controller drivers are common BSOD culprits.
-echo    - Try updating them or rolling back to a previous stable version.
+echo    - Check manufacturer websites (e.g., Nvidia, AMD, Intel, motherboard vendor) for latest drivers.
+echo    - If a recent driver update caused issues, try rolling it back via Device Manager.
 echo.
 echo Consider using Safe Mode to troubleshoot driver issues if BSODs prevent normal boot.
 echo.
@@ -344,7 +580,7 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 6: FINAL CHECKS AND COMPLETION
+echo SECTION 9: FINAL CHECKS AND COMPLETION
 :: ============================================================================
 echo.
 echo [INFO] Performing final connectivity tests...
@@ -360,16 +596,18 @@ echo ===========================================================================
 echo =                           SCRIPT COMPLETE                              =
 echo ============================================================================
 echo.
-echo All selected network, OS optimization, black screen fix, lightweight
-echo tweaks, and internal BSOD-related fixes (SFC, DISM, Chkdsk) have been executed.
+echo All selected network, system file repair, OS optimization, cleanup,
+echo performance tweaks, privacy adjustments, update maintenance, and
+echo internal BSOD-related fixes (SFC, DISM, Chkdsk) have been executed.
 echo.
-echo Refer to SECTION 5 in the output above for guidance on MANUAL steps
-echo to diagnose potential HARDWARE causes of BSODs if they continue.
+echo Refer to SECTION 8 in the output above for guidance on MANUAL steps
+echo to diagnose potential HARDWARE or DRIVER causes of BSODs if they continue.
 echo.
 echo *** CRITICAL REMINDER ***
 echo A system RESTART is NOW STRONGLY RECOMMENDED!
 echo Many changes (Network Resets, Fast Startup, Check Disk scheduling,
-echo Display Cache, Lightweight Tweaks) require a restart to take effect.
+echo Display Cache, Service changes, Registry tweaks, Windows Update Component Reset)
+echo require a restart to take full effect.
 echo The Check Disk scan will run automatically on C: during the next boot.
 echo.
 pause
