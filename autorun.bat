@@ -3,10 +3,10 @@
 :: Batch Script for Advanced Windows Troubleshooting, Optimization,
 :: Black Screen Fix Attempts, Enhanced Cleanup, Performance Tweaks,
 :: Privacy Adjustments, Update Resets, and BSOD Guidance.
-:: Version: 2.0
+:: Version: 2.1 (Added UI/Performance Tweaks)
 :: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
-title Advanced Windows Troubleshoot & Optimize Tool v2.0
+title Advanced Windows Troubleshoot & Optimize Tool v2.1
 
 :: Check for Administrator Privileges
 net session >nul 2>&1
@@ -29,12 +29,14 @@ echo 1. Reset network configurations (IP, Winsock, optional Firewall).
 echo 2. Repair Windows system files and component store (DISM, SFC).
 echo 3. Perform OS Optimizations, Enhanced Disk Cleanup, and Black Screen Fixes.
 echo    (Temp Files, Windows Update Cache, Prefetch, Fast Startup, Display Cache, Explorer Restart, Drive Optimization)
-echo 4. Apply Performance & Responsiveness Tweaks (Visual Effects, Power Plan).
+echo 4. Apply Performance & Responsiveness Tweaks (Visual Effects, UI Animations, Power Plan).
 echo 5. Adjust Privacy settings and disable selected Background Services/Features
 echo    (Telemetry, Cortana, Search Indexing, Sysmain, DiagTrack, CEIP, Ad ID).
 echo 6. Provide guidance on Memory Optimization.
 echo 7. Perform Driver & Windows Update Maintenance (Reset Update Components, Trigger Scan).
 echo 8. Provide information and suggest manual steps for troubleshooting BSODs.
+echo 9. Optimize Network Settings
+echo 10. Clean Up Disk and Unwanted Files
 echo.
 echo WARNING: MANY steps require a system RESTART afterwards to complete.
 echo WARNING: Resetting Firewall or Display Cache removes custom settings.
@@ -248,6 +250,58 @@ if /i "%AdjustVisuals%"=="YES" (
 )
 echo.
 
+:DISABLE_ANIMATIONS_PROMPT
+echo [ACTION REQUIRED] Disable Additional Windows Animation Effects?
+echo          This disables window animations, fade effects, and task switching animations
+echo          for maximum performance and responsiveness.
+set /p DisableAnimations="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableAnimations%"=="YES" (
+    echo [INFO] Disabling Windows Animation Effects...
+    :: Disable window animations
+    reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d "0" /f > nul 2>&1
+    :: Disable fade animations
+    reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f > nul 2>&1
+    :: Disable taskbar animations
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f > nul 2>&1
+    :: Disable listbox smooth scrolling
+    reg add "HKCU\Control Panel\Desktop" /v SmoothScroll /t REG_DWORD /d 0 /f > nul 2>&1
+    :: Disable combo box animation
+    reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f > nul 2>&1
+    :: Disable cursor shadow
+    reg add "HKCU\Control Panel\Desktop" /v CursorShadow /t REG_SZ /d "0" /f > nul 2>&1
+    :: Disable drag full windows
+    reg add "HKCU\Control Panel\Desktop" /v DragFullWindows /t REG_SZ /d "0" /f > nul 2>&1
+    echo [INFO] Windows Animation Effects disabled. Log off/on or restart may be needed for full effect.
+) else if /i "%DisableAnimations%"=="NO" (
+    echo [INFO] Skipping Windows Animation Effects disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_ANIMATIONS_PROMPT
+)
+echo.
+
+:DISABLE_TRANSPARENCY_PROMPT
+echo [ACTION REQUIRED] Disable Windows Transparency Effects?
+echo          This removes acrylic/transparent effects from start menu, taskbar, action center, etc.
+echo          Can improve performance and responsiveness, especially on less powerful hardware.
+set /p DisableTransparency="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableTransparency%"=="YES" (
+    echo [INFO] Disabling Transparency Effects...
+    reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f > nul 2>&1
+    echo [INFO] Transparency Effects disabled. Log off/on or restart may be needed.
+) else if /i "%DisableTransparency%"=="NO" (
+    echo [INFO] Skipping Transparency Effects disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_TRANSPARENCY_PROMPT
+)
+echo.
+
+
 :POWER_PLAN_PROMPT
 echo [ACTION REQUIRED] Set Power Plan to High Performance?
 echo          This can improve performance but uses more energy.
@@ -414,6 +468,25 @@ if /i "%DisableSysmain%"=="YES" (
 )
 echo.
 
+:DISABLE_FONTS_PREVIEW_PROMPT
+echo [ACTION REQUIRED] Disable Fonts Preview?
+echo          This disables the preview of fonts in File Explorer.
+echo          May improve performance.
+set /p DisableFontPreview="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableFontPreview%"=="YES" (
+    echo [INFO] Disabling Fonts Preview...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisableFontPreview /t REG_DWORD /d 1 /f > nul 2>&1
+    echo [INFO] Font Preview disabled. Requires restart.
+) else if /i "%DisableFontPreview%"=="NO" (
+    echo [INFO] Skipping Font Preview disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_FONTS_PREVIEW_PROMPT
+)
+echo.
+
 echo [INFO] Privacy, Services & Lightweight tweaks section completed.
 echo.
 pause
@@ -472,23 +545,23 @@ if /i "%ResetUpdates%"=="YES" (
 
     echo [INFO] Renaming SoftwareDistribution and Catroot2 folders...
     if exist "%SystemRoot%\SoftwareDistribution.old.bak" rmdir /s /q "%SystemRoot%\SoftwareDistribution.old.bak" >nul 2>&1
-    if exist "%SystemRoot%\Catroot2.old.bak" rmdir /s /q "%SystemRoot%\Catroot2.old.bak" >nul 2>&1
+    if exist "%SystemRoot%\System32\Catroot2.old.bak" rmdir /s /q "%SystemRoot%\System32\Catroot2.old.bak" >nul 2>&1
 
     if exist "%SystemRoot%\SoftwareDistribution.old" ren "%SystemRoot%\SoftwareDistribution.old" "SoftwareDistribution.old.bak" >nul 2>&1
     if exist "%SystemRoot%\System32\Catroot2.old" ren "%SystemRoot%\System32\Catroot2.old" "Catroot2.old.bak" >nul 2>&1
 
     if exist "%SystemRoot%\SoftwareDistribution" ren "%SystemRoot%\SoftwareDistribution" "SoftwareDistribution.old" >nul 2>&1
     if exist "%SystemRoot%\System32\Catroot2" ren "%SystemRoot%\System32\Catroot2" "Catroot2.old" >nul 2>&1
-    
+
     echo [INFO] Resetting Winsock (can be related to update download issues)...
     netsh winsock reset > nul 2>&1
-    
+
     echo [INFO] Starting services...
     net start bits > nul 2>&1
     net start wuauserv > nul 2>&1
     net start appidsvc > nul 2>&1
     net start cryptsvc > nul 2>&1
-    
+
     echo [INFO] Windows Update components reset. A restart might be beneficial.
 ) else if /i "%ResetUpdates%"=="NO" (
     echo [INFO] Skipping Windows Update Components reset.
@@ -580,7 +653,49 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 9: FINAL CHECKS AND COMPLETION
+echo SECTION 9: NETWORK OPTIMIZATION
+:: ============================================================================
+echo.
+echo [INFO] Optimizing Network Settings...
+echo.
+echo [INFO] Resetting the TCP/IP stack and Winsock catalog can sometimes improve network performance.
+echo       This has already been performed in Section 1.  Consider a restart if not already done.
+echo.
+echo [INFO] For more advanced network optimization, consider:
+echo   - Examining network adapter settings for optimal configuration (e.g., QoS settings).
+echo   - Reviewing and adjusting your firewall rules for efficiency.
+echo   - Running a network speed test to ensure your connection is performing as expected.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 10: CLEAN UP DISK AND UNWANTED FILES
+:: ============================================================================
+echo.
+echo [INFO] Cleaning up the disk and removing unwanted files...
+echo.
+echo [INFO] Removing temporary internet files...
+del /q /f /s "%LOCALAPPDATA%\Microsoft\Windows\INetCache\*.*" >nul 2>&1
+echo.
+echo [INFO] Removing old system logs...
+del /q /f /s "%SystemRoot%\System32\*.log" >nul 2>&1
+del /q /f /s "%SystemRoot%\*.log" >nul 2>&1
+echo.
+echo [INFO] Emptying the recycle bin for all drives...
+powershell.exe -Command Clear-RecycleBin -Force
+echo.
+echo [INFO] Removing browser cache and cookies (Chrome)...
+del /q /f /s "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache\*.*" >nul 2>&1
+del /q /f /s "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cookies" >nul 2>&1
+echo.
+echo [INFO] Cleanup complete.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 11: FINAL CHECKS AND COMPLETION
 :: ============================================================================
 echo.
 echo [INFO] Performing final connectivity tests...
@@ -597,18 +712,4 @@ echo =                           SCRIPT COMPLETE                              =
 echo ============================================================================
 echo.
 echo All selected network, system file repair, OS optimization, cleanup,
-echo performance tweaks, privacy adjustments, update maintenance, and
-echo internal BSOD-related fixes (SFC, DISM, Chkdsk) have been executed.
-echo.
-echo Refer to SECTION 8 in the output above for guidance on MANUAL steps
-echo to diagnose potential HARDWARE or DRIVER causes of BSODs if they continue.
-echo.
-echo *** CRITICAL REMINDER ***
-echo A system RESTART is NOW STRONGLY RECOMMENDED!
-echo Many changes (Network Resets, Fast Startup, Check Disk scheduling,
-echo Display Cache, Service changes, Registry tweaks, Windows Update Component Reset)
-echo require a restart to take full effect.
-echo The Check Disk scan will run automatically on C: during the next boot.
-echo.
-pause
-exit /b 0
+echo performance tweaks, privacy adjustments,
