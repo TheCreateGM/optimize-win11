@@ -1,4 +1,4 @@
-PyQt6==6.6.1
-psutil==5.9.8
-wmi==1.5.1
-pywin32==306
+PyQt6
+psutil
+wmi
+pywin32
