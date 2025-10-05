@@ -1,12 +1,12 @@
 @echo off
 :: ============================================================================
 :: Batch Script for Advanced Windows Troubleshooting, Optimization,
-:: Black Screen Fix Attempts, Enhanced Cleanup, Performance Tweaks,
+:: Black Screen Fix Attempts, Enhanced Cleanup, Performance Tweaks, Memory/Disk Boosts,
 :: Privacy Adjustments, Update Resets, and BSOD Guidance.
-:: Version: 2.1 (Added UI/Performance Tweaks)
+:: Version: 2.3 (Added Memory & Disk Boosts)
 :: IMPORTANT: Run this script as an Administrator!
 :: ============================================================================
-title Advanced Windows Troubleshoot & Optimize Tool v2.1
+title Advanced Windows Troubleshoot & Optimize Tool v2.3
 
 :: Check for Administrator Privileges
 net session >nul 2>&1
@@ -32,11 +32,14 @@ echo    (Temp Files, Windows Update Cache, Prefetch, Fast Startup, Display Cache
 echo 4. Apply Performance & Responsiveness Tweaks (Visual Effects, UI Animations, Power Plan).
 echo 5. Adjust Privacy settings and disable selected Background Services/Features
 echo    (Telemetry, Cortana, Search Indexing, Sysmain, DiagTrack, CEIP, Ad ID).
-echo 6. Provide guidance on Memory Optimization.
-echo 7. Perform Driver & Windows Update Maintenance (Reset Update Components, Trigger Scan).
-echo 8. Provide information and suggest manual steps for troubleshooting BSODs.
-echo 9. Optimize Network Settings
-echo 10. Clean Up Disk and Unwanted Files
+echo 6. Apply Memory & Disk Performance Boosts (Paging, Last Access Time, Hibernation).
+echo 7. Provide guidance on Memory Optimization.
+echo 8. Perform Driver & Windows Update Maintenance (Reset Update Components, Trigger Scan).
+echo 9. Provide information and suggest manual steps for troubleshooting BSODs.
+echo 10. Disable Automatic Restart on System Failure (Helps diagnose BSODs).
+echo 11. Optimize Network Settings
+echo 12. Clean Up Disk and Unwanted Files
+echo 13. Final Connectivity Checks and Completion.
 echo.
 echo WARNING: MANY steps require a system RESTART afterwards to complete.
 echo WARNING: Resetting Firewall or Display Cache removes custom settings.
@@ -493,7 +496,78 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 6: MEMORY OPTIMIZATION GUIDANCE
+echo SECTION 6: MEMORY & DISK PERFORMANCE BOOSTS (TWEAKS)
+:: ============================================================================
+echo.
+echo [INFO] Applying optional registry tweaks for Memory and Disk performance.
+echo        These are for advanced users and can have varied effects.
+echo.
+
+:DISABLE_PAGING_EXECUTIVE_PROMPT
+echo [ACTION REQUIRED] Apply Memory Paging Tweak? (Advanced)
+echo          This keeps the Windows kernel and drivers in RAM instead of paging to disk.
+echo WARNING: This can improve responsiveness but requires plenty of RAM (16GB+ recommended).
+echo          It can cause instability on systems with low RAM.
+set /p ApplyPagingTweak="Type 'YES' to apply, or 'NO' to skip: "
+echo.
+
+if /i "%ApplyPagingTweak%"=="YES" (
+    echo [INFO] Applying Memory Paging tweak...
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f > nul 2>&1
+    echo [INFO] Memory Paging tweak applied. Requires restart.
+) else if /i "%ApplyPagingTweak%"=="NO" (
+    echo [INFO] Skipping Memory Paging tweak.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_PAGING_EXECUTIVE_PROMPT
+)
+echo.
+
+:DISABLE_LAST_ACCESS_PROMPT
+echo [ACTION REQUIRED] Apply Disk I/O Tweak (Disable Last Access Timestamps)?
+echo          This prevents the file system from updating the 'last accessed' time on files/folders.
+echo          It can reduce disk I/O and slightly improve performance, especially on HDDs.
+set /p ApplyLastAccessTweak="Type 'YES' to apply, or 'NO' to skip: "
+echo.
+
+if /i "%ApplyLastAccessTweak%"=="YES" (
+    echo [INFO] Applying Disk I/O tweak...
+    fsutil behavior set disablelastaccess 1 > nul 2>&1
+    echo [INFO] Disk I/O tweak applied. Requires restart.
+) else if /i "%ApplyLastAccessTweak%"=="NO" (
+    echo [INFO] Skipping Disk I/O tweak.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_LAST_ACCESS_PROMPT
+)
+echo.
+
+:DISABLE_HIBERNATION_PROMPT
+echo [ACTION REQUIRED] Disable Hibernation?
+echo          This turns off hibernation and deletes the hiberfil.sys file,
+echo          freeing up several gigabytes of disk space (equal to your RAM size).
+echo WARNING: This also disables the 'Hibernate' power option.
+set /p DisableHibernation="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableHibernation%"=="YES" (
+    echo [INFO] Disabling Hibernation...
+    powercfg /hibernate off
+    echo [INFO] Hibernation disabled and hiberfil.sys removed.
+) else if /i "%DisableHibernation%"=="NO" (
+    echo [INFO] Skipping Hibernation disable.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_HIBERNATION_PROMPT
+)
+echo.
+echo [INFO] Memory & Disk Performance Boosts section completed.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 7: MEMORY OPTIMIZATION GUIDANCE
 :: ============================================================================
 echo.
 echo [INFO] Memory Optimization Guidance:
@@ -525,7 +599,7 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 7: DRIVER & WINDOWS UPDATE MAINTENANCE
+echo SECTION 8: DRIVER & WINDOWS UPDATE MAINTENANCE
 :: ============================================================================
 echo.
 :RESET_UPDATE_COMPONENTS_PROMPT
@@ -595,7 +669,7 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 8: BSOD INFORMATION AND MANUAL DIAGNOSTIC STEPS
+echo SECTION 9: BSOD INFORMATION AND MANUAL DIAGNOSTIC STEPS
 :: ============================================================================
 echo.
 echo [INFO] Information and Manual Steps for BSOD Troubleshooting:
@@ -653,7 +727,36 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 9: NETWORK OPTIMIZATION
+echo SECTION 10: STABILITY & RESTART FIXES
+:: ============================================================================
+echo.
+:DISABLE_AUTO_RESTART_PROMPT
+echo [ACTION REQUIRED] Disable Automatic Restart on System Failure?
+echo          This is a key diagnostic step for random restarts. If your PC
+echo          is restarting due to a BSOD (Blue Screen), this will stop the
+echo          restart and show you the error code instead.
+set /p DisableAutoRestart="Type 'YES' to disable, or 'NO' to skip: "
+echo.
+
+if /i "%DisableAutoRestart%"=="YES" (
+    echo [INFO] Disabling 'Automatically restart' on system failure...
+    wmic recoveros set AutoReboot = False > nul 2>&1
+    echo [INFO] Automatic restart on system failure has been disabled.
+    echo        If a BSOD occurs, the error screen will now remain visible.
+) else if /i "%DisableAutoRestart%"=="NO" (
+    echo [INFO] Skipping automatic restart adjustment.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto DISABLE_AUTO_RESTART_PROMPT
+)
+echo.
+echo [INFO] Stability & Restart Fixes section completed.
+echo.
+pause
+cls
+
+:: ============================================================================
+echo SECTION 11: NETWORK OPTIMIZATION
 :: ============================================================================
 echo.
 echo [INFO] Optimizing Network Settings...
@@ -670,7 +773,7 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 10: CLEAN UP DISK AND UNWANTED FILES
+echo SECTION 12: CLEAN UP DISK AND UNWANTED FILES
 :: ============================================================================
 echo.
 echo [INFO] Cleaning up the disk and removing unwanted files...
@@ -695,7 +798,7 @@ pause
 cls
 
 :: ============================================================================
-echo SECTION 11: FINAL CHECKS AND COMPLETION
+echo SECTION 13: FINAL CHECKS AND COMPLETION
 :: ============================================================================
 echo.
 echo [INFO] Performing final connectivity tests...
@@ -712,4 +815,4 @@ echo =                           SCRIPT COMPLETE                              =
 echo ============================================================================
 echo.
 echo All selected network, system file repair, OS optimization, cleanup,
-echo performance tweaks, privacy adjustments,
+echo performance tweaks, memory/disk boosts, privacy adjustments, stability fixes,
