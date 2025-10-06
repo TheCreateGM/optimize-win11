@@ -186,16 +186,16 @@ echo [ACTION REQUIRED] Clear Display Configuration Cache from Registry?
 echo WARNING: This forces Windows to redetect monitors on next boot.
 echo          It *might* help with certain black/blank screen issues after updates/driver changes.
 echo          It involves deleting registry keys. Proceed with caution.
-set /p ClearCache="Type 'YES' to clear, or 'NO' to skip: "
+set /p ClearDisplayCache="Type 'YES' to clear, or 'NO' to skip: "
 echo.
 
-if /i "%ClearCache%"=="YES" (
+if /i "%ClearDisplayCache%"=="YES" (
     echo [INFO] Clearing Display Configuration registry keys...
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Configuration" /f > nul 2>&1
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Connectivity" /f > nul 2>&1
     reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\ScaleFactors" /f > nul 2>&1 :: Another related key
     echo [INFO] Display configuration registry keys deleted (if they existed). Requires restart.
-) else if /i "%ClearCache%"=="NO" (
+) else if /i "%ClearDisplayCache%"=="NO" (
     echo [INFO] Skipping Display Cache clear.
 ) else (
     echo Invalid input. Please type 'YES' or 'NO'.
@@ -205,12 +205,26 @@ echo.
 pause
 echo.
 
-echo [INFO] Attempting to restart Windows Explorer (Shell)...
-echo        (Useful if you see a black screen *after* logging in, maybe with a cursor)
-taskkill /f /im explorer.exe >nul 2>&1
-timeout /t 2 /nobreak > nul
-start explorer.exe
-echo [INFO] Windows Explorer restart command issued. May take a moment to reappear.
+:RESTART_EXPLORER_PROMPT
+echo [ACTION REQUIRED] Restart the Windows Explorer shell?
+echo          (This can help with some UI glitches or black screen issues after login).
+echo WARNING: On some systems (especially with UAC disabled), this can cause this
+echo          script window to close unexpectedly, preventing the script from finishing.
+set /p RestartExplorer="Type 'YES' to restart explorer, or 'NO' to skip: "
+echo.
+
+if /i "%RestartExplorer%"=="YES" (
+    echo [INFO] Attempting to restart Windows Explorer...
+    taskkill /f /im explorer.exe >nul 2>&1
+    timeout /t 2 /nobreak > nul
+    start explorer.exe
+    echo [INFO] Windows Explorer restart command issued.
+) else if /i "%RestartExplorer%"=="NO" (
+    echo [INFO] Skipping Windows Explorer restart.
+) else (
+    echo Invalid input. Please type 'YES' or 'NO'.
+    goto RESTART_EXPLORER_PROMPT
+)
 echo.
 pause
 echo.
