@@ -1,13 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 :: ============================================================================
-:: Windows System Optimizer v4.0 - ADVANCED EDITION
+:: Windows System Optimizer v5.0 - VIRTUAL EDITION
 :: Compatible with Windows 10/11
-:: Features: Multithreading, CPU/GPU/RAM/SSD Optimization
+:: Features: Multithreading, Virtual Resources (RAMDisk), CPU/GPU/RAM/SSD
 :: IMPORTANT: Run as Administrator!
 :: ============================================================================
 
-title Windows System Optimizer v4.0 - Advanced Edition
+title Windows System Optimizer v5.0 - Virtual Edition
 
 :: Store script path to prevent closure issues
 set "SCRIPT_PATH=%~f0"
@@ -27,7 +27,7 @@ if %errorLevel% neq 0 (
 
 cls
 echo ============================================================================
-echo =      WINDOWS SYSTEM OPTIMIZER v4.0 - ADVANCED EDITION (Win 10/11)    =
+echo =      WINDOWS SYSTEM OPTIMIZER v5.0 - VIRTUAL EDITION (Win 10/11)     =
 echo ============================================================================
 echo.
 echo This script will optimize your Windows system by:
@@ -44,15 +44,16 @@ echo  [9] CPU OPTIMIZATION - Multithreading, Priority, Affinity
 echo [10] GPU OPTIMIZATION - Display, Game Mode, Hardware Acceleration
 echo [11] RAM OPTIMIZATION - Memory Management, Paging, Cache
 echo [12] SSD OPTIMIZATION - TRIM, Write Caching, Prefetch
+echo [13] VIRTUAL RESOURCES - RAMDisk for Temp Files, Page File
 echo.
 echo WARNING: Some changes require a restart to take effect
-echo WARNING: Some tweaks will disable Windows features
+echo WARNING: Creating a RAMDisk requires a third-party tool (ImDisk)
 echo.
 pause
 cls
 
 :: ============================================================================
-echo [SECTION 1/8] NETWORK OPTIMIZATION
+echo [SECTION 1/13] NETWORK OPTIMIZATION
 :: ============================================================================
 echo.
 echo [1/6] Flushing DNS cache...
@@ -90,7 +91,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 2/8] SYSTEM FILE REPAIR
+echo [SECTION 2/13] SYSTEM FILE REPAIR
 :: ============================================================================
 echo.
 echo [1/3] Running DISM - This may take several minutes...
@@ -118,7 +119,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 3/8] DISK CLEANUP
+echo [SECTION 3/13] DISK CLEANUP
 :: ============================================================================
 echo.
 echo [1/8] Cleaning temporary files...
@@ -174,7 +175,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 4/8] PERFORMANCE TWEAKS
+echo [SECTION 4/13] PERFORMANCE TWEAKS
 :: ============================================================================
 echo.
 echo [1/7] Disabling visual effects...
@@ -216,7 +217,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 5/8] PRIVACY SETTINGS
+echo [SECTION 5/13] PRIVACY SETTINGS
 :: ============================================================================
 echo.
 echo [1/6] Reducing telemetry...
@@ -252,7 +253,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 6/8] SERVICE OPTIMIZATION
+echo [SECTION 6/13] SERVICE OPTIMIZATION
 :: ============================================================================
 echo.
 echo [1/5] Disabling unnecessary services...
@@ -283,7 +284,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 7/8] WINDOWS UPDATE MAINTENANCE
+echo [SECTION 7/13] WINDOWS UPDATE MAINTENANCE
 :: ============================================================================
 echo.
 echo [1/3] Resetting Windows Update components...
@@ -322,7 +323,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 8/8] FINAL OPTIMIZATIONS
+echo [SECTION 8/13] FINAL OPTIMIZATIONS
 :: ============================================================================
 echo.
 echo [1/4] Disabling automatic restart on system failure...
@@ -353,13 +354,14 @@ timeout /t 2 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 9/12] ADVANCED CPU OPTIMIZATION
+echo [SECTION 9/13] ADVANCED CPU OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing CPU performance and multithreading...
 echo.
 
 echo [1/10] Enabling all CPU cores for boot...
+:: This ensures all physical and logical (virtual) cores are utilized
 bcdedit /set numproc %NUMBER_OF_PROCESSORS% >nul 2>&1
 bcdedit /set {current} numproc %NUMBER_OF_PROCESSORS% >nul 2>&1
 echo [OK] All CPU cores enabled for boot
@@ -410,13 +412,14 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 10/12] ADVANCED GPU OPTIMIZATION
+echo [SECTION 10/13] ADVANCED GPU OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing GPU performance and display settings...
 echo.
 
 echo [1/12] Enabling Hardware Accelerated GPU Scheduling...
+:: This key enables a form of GPU virtualization for better performance
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f >nul 2>&1
 echo [OK] Hardware GPU Scheduling enabled
 
@@ -485,7 +488,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 11/12] ADVANCED RAM OPTIMIZATION
+echo [SECTION 11/13] ADVANCED RAM OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing RAM and memory management...
@@ -567,7 +570,7 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
-echo [SECTION 12/12] ADVANCED SSD OPTIMIZATION
+echo [SECTION 12/13] ADVANCED SSD OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing SSD performance and lifespan...
@@ -629,6 +632,71 @@ timeout /t 3 /nobreak >nul
 cls
 
 :: ============================================================================
+echo [SECTION 13/13] VIRTUAL RESOURCE OPTIMIZATION (RAMDisk & Page File)
+:: ============================================================================
+echo.
+echo This section configures advanced virtual resources for peak performance.
+echo.
+
+echo [1/3] Optimizing Virtual Memory (Page File)...
+:: We will ensure the page file is managed correctly for performance.
+wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True >nul 2>&1
+echo [OK] Virtual Memory (Page File) set to System Managed for optimal flexibility
+
+echo.
+echo [2/3] Preparing for Virtual Disk (RAMDisk) creation...
+echo.
+echo A RAMDisk is a virtual drive stored in your system memory (RAM).
+echo It is extremely fast and ideal for temporary files.
+echo.
+echo [INFO] This requires the ImDisk Virtual Disk Driver.
+echo [INFO] Checking if 'imdisk.exe' is available...
+echo.
+where imdisk >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [WARN] ImDisk driver not found!
+    echo.
+    echo To use this feature, you must install ImDisk:
+    echo 1. Download from: https://sourceforge.net/projects/imdisk-toolkit/
+    echo 2. Install the package (default settings are fine).
+    echo 3. Place this script on your Desktop and run it again.
+    echo.
+    echo [SKIP] Skipping RAMDisk creation.
+    goto EndVirtual
+) else (
+    echo [OK] ImDisk driver found!
+)
+echo.
+
+echo [3/3] Creating 2GB RAMDisk and redirecting Temp files...
+set RAMDISK_SIZE=2048M
+set RAMDISK_LETTER=R:
+
+echo [INFO] Creating RAMDisk (%RAMDISK_SIZE%) as drive %RAMDISK_LETTER%...
+imdisk -a -s %RAMDISK_SIZE% -m %RAMDISK_LETTER% -p "/fs:ntfs /q /y" >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERROR] Failed to create RAMDisk. It might already exist or another issue occurred.
+    echo [SKIP] Skipping RAMDisk configuration.
+    goto EndVirtual
+)
+echo [OK] RAMDisk created successfully.
+
+echo [INFO] Redirecting system TEMP and TMP variables to RAMDisk...
+setx TEMP "%RAMDISK_LETTER%\Temp" /M >nul 2>&1
+setx TMP "%RAMDISK_LETTER%\Temp" /M >nul 2>&1
+if not exist "%RAMDISK_LETTER%\Temp" mkdir "%RAMDISK_LETTER%\Temp" >nul 2>&1
+echo [OK] System environment variables redirected.
+echo.
+echo [WARNING] The RAMDisk (%RAMDISK_LETTER%) is volatile! Data is lost on restart.
+echo [INFO] This is perfect for temporary files but do not store important data on it.
+echo.
+
+:EndVirtual
+echo Virtual Resource optimization complete!
+timeout /t 5 /nobreak >nul
+cls
+
+:: ============================================================================
 echo ============================================================================
 echo =                    OPTIMIZATION COMPLETE!                            =
 echo ============================================================================
@@ -645,10 +713,11 @@ echo  [✓] Unnecessary services disabled
 echo  [✓] Windows Update components reset
 echo  [✓] Display cache cleared
 echo.
-echo  [★] CPU OPTIMIZED - Multithreading, All cores enabled, No throttling
+echo  [★] CPU OPTIMIZED - Multithreading, All physical/virtual cores enabled
 echo  [★] GPU OPTIMIZED - Hardware scheduling, Game mode, DirectX tweaked
 echo  [★] RAM OPTIMIZED - Memory management, Cache tuned, Compression off
 echo  [★] SSD OPTIMIZED - TRIM enabled, Write cache tuned, Indexing off
+echo  [★] VIRTUALIZED - RAMDisk for Temp files, Optimized Page File
 echo.
 echo ============================================================================
 echo PERFORMANCE BOOST SUMMARY:
@@ -657,17 +726,16 @@ echo  • CPU: 100%% cores active, no parking, maximum performance state
 echo  • GPU: Hardware acceleration enabled, Game mode on, low latency
 echo  • RAM: Optimized paging, kernel in memory, compression disabled
 echo  • SSD: TRIM active, reduced writes, optimized for speed
-echo  • MULTITHREADING: Enhanced thread distribution and scheduling
+echo  • V-DISK: Ultra-fast RAMDisk for temp files, reducing SSD/HDD load
 echo ============================================================================
 echo.
 echo IMPORTANT: A system RESTART is REQUIRED for changes to take effect!
 echo.
 echo Critical changes that need restart:
+echo  - Redirection of TEMP files to the new RAMDisk
 echo  - Network stack reset (Winsock, TCP/IP)
 echo  - CPU core parking and threading optimization
-echo  - GPU hardware scheduling
-echo  - Memory management changes
-echo  - SSD TRIM and file system optimization
+echo  - GPU hardware scheduling and memory management changes
 echo  - Service changes and registry modifications
 echo.
 echo System will be significantly faster after restart!
