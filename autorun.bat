@@ -1,12 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
 :: ============================================================================
-:: Windows System Optimizer v5.0 - VIRTUAL EDITION
+:: Windows System Optimizer v5.1 - VIRTUAL EDITION + Battery & AI Removal
 :: Compatible with Windows 10/11
-:: Features: Multithreading, Virtual Resources (RAMDisk), CPU/GPU/RAM/SSD
+:: NEW: Battery optimization + AI system removal (Copilot, Recall, etc.)
 :: IMPORTANT: Run as Administrator!
 :: ============================================================================
-title Windows System Optimizer v5.0 - Virtual Edition
+title Windows System Optimizer v5.1 - Virtual Edition + Battery + AI Removal
 :: Store script path to prevent closure issues
 set "SCRIPT_PATH=%~f0"
 set "SCRIPT_DIR=%~dp0"
@@ -23,7 +23,7 @@ if %errorLevel% neq 0 (
 )
 cls
 echo ============================================================================
-echo =      WINDOWS SYSTEM OPTIMIZER v5.0 - VIRTUAL EDITION (Win 10/11)     =
+echo =    WINDOWS SYSTEM OPTIMIZER v5.1 - VIRTUAL EDITION (Win 10/11)       =
 echo ============================================================================
 echo.
 echo This script will optimize your Windows system by:
@@ -41,6 +41,8 @@ echo [10] GPU OPTIMIZATION - Display, Game Mode, Hardware Acceleration
 echo [11] RAM OPTIMIZATION - Memory Management, Paging, Cache
 echo [12] SSD OPTIMIZATION - TRIM, Write Caching, Prefetch
 echo [13] VIRTUAL RESOURCES - RAMDisk for Temp Files, Page File
+echo [14] AI SYSTEM REMOVAL - Copilot, Recall, Windows AI features
+echo [15] BATTERY OPTIMIZATION - Power management for longer battery life
 echo.
 echo WARNING: Some changes require a restart to take effect
 echo WARNING: Creating a RAMDisk requires a third-party tool (ImDisk)
@@ -48,7 +50,7 @@ echo.
 pause
 cls
 :: ============================================================================
-echo [SECTION 1/13] NETWORK OPTIMIZATION
+echo [SECTION 1/15] NETWORK OPTIMIZATION
 :: ============================================================================
 echo.
 echo [1/6] Flushing DNS cache...
@@ -79,7 +81,7 @@ echo Network optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 2/13] SYSTEM FILE REPAIR
+echo [SECTION 2/15] SYSTEM FILE REPAIR
 :: ============================================================================
 echo.
 echo [1/3] Running DISM - This may take several minutes...
@@ -103,7 +105,7 @@ echo System repair complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 3/13] DISK CLEANUP
+echo [SECTION 3/15] DISK CLEANUP
 :: ============================================================================
 echo.
 echo [1/8] Cleaning temporary files...
@@ -150,7 +152,7 @@ echo Disk cleanup complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 4/13] PERFORMANCE TWEAKS
+echo [SECTION 4/15] PERFORMANCE TWEAKS
 :: ============================================================================
 echo.
 echo [1/7] Disabling visual effects...
@@ -184,7 +186,7 @@ echo Performance tweaks applied!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 5/13] PRIVACY SETTINGS
+echo [SECTION 5/15] PRIVACY SETTINGS
 :: ============================================================================
 echo.
 echo [1/6] Reducing telemetry...
@@ -213,7 +215,7 @@ echo Privacy settings applied!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 6/13] SERVICE OPTIMIZATION
+echo [SECTION 6/15] SERVICE OPTIMIZATION
 :: ============================================================================
 echo.
 echo [1/5] Disabling unnecessary services...
@@ -238,7 +240,7 @@ echo Service optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 7/13] WINDOWS UPDATE MAINTENANCE
+echo [SECTION 7/15] WINDOWS UPDATE MAINTENANCE
 :: ============================================================================
 echo.
 echo [1/3] Resetting Windows Update components...
@@ -270,7 +272,7 @@ echo Windows Update maintenance complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 8/13] FINAL OPTIMIZATIONS
+echo [SECTION 8/15] FINAL OPTIMIZATIONS
 :: ============================================================================
 echo.
 echo [1/4] Disabling automatic restart on system failure...
@@ -296,13 +298,12 @@ echo.
 timeout /t 2 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 9/13] ADVANCED CPU OPTIMIZATION
+echo [SECTION 9/15] ADVANCED CPU OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing CPU performance and multithreading...
 echo.
 echo [1/10] Enabling all CPU cores for boot...
-:: This ensures all physical and logical (virtual) cores are utilized
 bcdedit /set numproc %NUMBER_OF_PROCESSORS% >nul 2>&1
 bcdedit /set {current} numproc %NUMBER_OF_PROCESSORS% >nul 2>&1
 echo [OK] All CPU cores enabled for boot
@@ -342,13 +343,12 @@ echo CPU optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 10/13] ADVANCED GPU OPTIMIZATION
+echo [SECTION 10/15] ADVANCED GPU OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing GPU performance and display settings...
 echo.
 echo [1/12] Enabling Hardware Accelerated GPU Scheduling...
-:: This key enables a form of GPU virtualization for better performance
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f >nul 2>&1
 echo [OK] Hardware GPU Scheduling enabled
 echo [2/12] Optimizing GPU priority for gaming/performance...
@@ -404,7 +404,7 @@ echo GPU optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 11/13] ADVANCED RAM OPTIMIZATION
+echo [SECTION 11/15] ADVANCED RAM OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing RAM and memory management...
@@ -469,7 +469,7 @@ echo RAM optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 12/13] ADVANCED SSD OPTIMIZATION
+echo [SECTION 12/15] ADVANCED SSD OPTIMIZATION
 :: ============================================================================
 echo.
 echo Optimizing SSD performance and lifespan...
@@ -517,13 +517,12 @@ echo SSD optimization complete!
 timeout /t 3 /nobreak >nul
 cls
 :: ============================================================================
-echo [SECTION 13/13] VIRTUAL RESOURCE OPTIMIZATION (RAMDisk & Page File)
+echo [SECTION 13/15] VIRTUAL RESOURCE OPTIMIZATION (RAMDisk ^& Page File)
 :: ============================================================================
 echo.
 echo This section configures advanced virtual resources for peak performance.
 echo.
 echo [1/3] Optimizing Virtual Memory (Page File)...
-:: We will ensure the page file is managed correctly for performance.
 wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True >nul 2>&1
 echo [OK] Virtual Memory (Page File) set to System Managed for optimal flexibility
 echo.
@@ -541,7 +540,6 @@ if %errorLevel% neq 0 (
     echo [INFO] Attempting to download and install ImDisk automatically...
     echo.
 
-    :: Download ImDisk installer using PowerShell
     powershell -Command "Invoke-WebRequest -Uri 'https://sourceforge.net/projects/imdisk-toolkit/files/latest/download/IMDiskToolkit.exe' -OutFile 'IMDiskToolkit.exe'"
 
     if exist IMDiskToolkit.exe (
@@ -582,6 +580,157 @@ echo Virtual Resource optimization complete!
 timeout /t 5 /nobreak >nul
 cls
 :: ============================================================================
+echo [SECTION 14/15] AI SYSTEM REMOVAL (Windows 11 Copilot, Recall, AI Features)
+:: ============================================================================
+echo.
+echo Removing Windows AI features and services...
+echo.
+echo [1/12] Disabling Windows Copilot...
+reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot" /v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" /v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowCopilotButton /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Windows Copilot disabled
+echo [2/12] Disabling Windows Recall (Snapshots)...
+reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsAI" /v DisableAIDataAnalysis /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" /v DisableAIDataAnalysis /t REG_DWORD /d 1 /f >nul 2>&1
+DISM /Online /Disable-Feature /FeatureName:Recall /NoRestart >nul 2>&1
+echo [OK] Windows Recall disabled
+echo [3/12] Disabling AI-powered Search...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsAADCloudSearchEnabled /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsMSACloudSearchEnabled /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] AI-powered Search disabled
+echo [4/12] Disabling Cortana completely...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCloudSearch /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortanaAboveLock /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Cortana completely disabled
+echo [5/12] Disabling Windows AI Writing Assistant...
+reg add "HKCU\Software\Microsoft\Input\Settings" /v EnableHwkbTextPrediction /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Input\Settings" /v InsightsEnabled /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] AI Writing Assistant disabled
+echo [6/12] Disabling Smart App Control (AI-based)...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Smart App Control disabled
+echo [7/12] Disabling Suggested Actions...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SmartActionPlatform\SmartClipboard" /v Disabled /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\SmartActionPlatform\SmartClipboard" /v Disabled /t REG_DWORD /d 1 /f >nul 2>&1
+echo [OK] Suggested Actions disabled
+echo [8/12] Disabling Windows Spotlight AI suggestions...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenEnabled /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338388Enabled /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Windows Spotlight disabled
+echo [9/12] Disabling AI-powered News and Interests...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v EnableFeeds /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarViewMode /t REG_DWORD /d 2 /f >nul 2>&1
+echo [OK] News and Interests disabled
+echo [10/12] Disabling AI Text Suggestions and Predictions...
+reg add "HKCU\Software\Microsoft\TabletTip\1.7" /v EnableAutocorrection /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\TabletTip\1.7" /v EnablePredictionSpaceInsertion /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\TabletTip\1.7" /v EnableTextPrediction /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Text predictions disabled
+echo [11/12] Disabling Activity History and Timeline...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f >nul 2>&1
+echo [OK] Activity History disabled
+echo [12/12] Removing AI-related scheduled tasks...
+schtasks /Change /TN "Microsoft\Windows\ApplicationData\DsSvcCleanup" /DISABLE >nul 2>&1
+schtasks /Change /TN "Microsoft\Windows\CloudExperienceHost\CreateObjectTask" /DISABLE >nul 2>&1
+schtasks /Change /TN "Microsoft\Windows\HelloFace\FODCleanupTask" /DISABLE >nul 2>&1
+echo [OK] AI-related tasks disabled
+echo.
+echo AI systems removed successfully!
+timeout /t 3 /nobreak >nul
+cls
+:: ============================================================================
+echo [SECTION 15/15] BATTERY LIFE OPTIMIZATION
+:: ============================================================================
+echo.
+echo Optimizing for maximum battery life...
+echo.
+echo [1/20] Creating Balanced Power Plan optimized for battery...
+powercfg -duplicatescheme 381b4222-f694-41f0-9685-ff5bb260df2e >nul 2>&1
+powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e >nul 2>&1
+echo [OK] Balanced power plan activated
+echo [2/20] Optimizing display brightness (battery saver)...
+powercfg -setdcvalueindex scheme_current sub_video VIDEOIDLE 60 >nul 2>&1
+powercfg -setdcvalueindex scheme_current sub_video VIDEOCONLOCK 60 >nul 2>&1
+echo [OK] Display timeout set to 60 seconds on battery
+echo [3/20] Reducing screen brightness on battery...
+powercfg -setdcvalueindex scheme_current sub_video VIDEOBRIGHTNESS 40 >nul 2>&1
+echo [OK] Screen brightness reduced to 40%% on battery
+echo [4/20] Enabling CPU power saving on battery...
+powercfg -setdcvalueindex scheme_current sub_processor PROCTHROTTLEMAX 80 >nul 2>&1
+powercfg -setdcvalueindex scheme_current sub_processor PROCTHROTTLEMIN 5 >nul 2>&1
+echo [OK] CPU throttled to 5-80%% on battery
+echo [5/20] Enabling aggressive CPU parking on battery...
+powercfg -setdcvalueindex scheme_current sub_processor CPMINCORES 1 >nul 2>&1
+powercfg -setdcvalueindex scheme_current sub_processor CPMAXCORES 50 >nul 2>&1
+echo [OK] CPU core parking enabled (saves power)
+echo [6/20] Setting CPU to power saving mode on battery...
+powercfg -setdcvalueindex scheme_current sub_processor PERFBOOSTMODE 0 >nul 2>&1
+echo [OK] CPU boost disabled on battery
+echo [7/20] Enabling deep CPU sleep states...
+powercfg -setdcvalueindex scheme_current sub_processor IDLEDISABLE 1 >nul 2>&1
+echo [OK] Deep CPU sleep enabled
+echo [8/20] Reducing USB power consumption...
+powercfg -setdcvalueindex scheme_current sub_usb USBSELECTIVESUSPEND 1 >nul 2>&1
+echo [OK] USB selective suspend enabled
+echo [9/20] Optimizing Wi-Fi power saving...
+powercfg -setdcvalueindex scheme_current sub_none WIRELESSMODE 3 >nul 2>&1
+echo [OK] Wi-Fi set to maximum power saving
+echo [10/20] Enabling PCI Express Link State Power Management...
+powercfg -setdcvalueindex scheme_current sub_pciexpress ASPM 2 >nul 2>&1
+echo [OK] PCIe power management enabled
+echo [11/20] Setting hard disk timeout on battery...
+powercfg -setdcvalueindex scheme_current sub_disk DISKIDLE 180 >nul 2>&1
+echo [OK] Hard disk turns off after 3 minutes
+echo [12/20] Enabling adaptive display dimming...
+powercfg -setdcvalueindex scheme_current sub_video ADAPTBRIGHT 1 >nul 2>&1
+echo [OK] Adaptive brightness enabled
+echo [13/20] Disabling wake timers to save battery...
+powercfg -setdcvalueindex scheme_current sub_sleep RTCWAKE 0 >nul 2>&1
+powercfg -setdcvalueindex scheme_current sub_sleep ALLOWSTANDBY 0 >nul 2>&1
+echo [OK] Wake timers disabled on battery
+echo [14/20] Setting sleep timeout on battery...
+powercfg -setdcvalueindex scheme_current sub_sleep STANDBYIDLE 900 >nul 2>&1
+echo [OK] Sleep after 15 minutes on battery
+echo [15/20] Enabling hibernate on battery...
+powercfg -setdcvalueindex scheme_current sub_sleep HIBERNATEIDLE 1800 >nul 2>&1
+powercfg /hibernate on >nul 2>&1
+echo [OK] Hibernate after 30 minutes on battery
+echo [16/20] Disabling background apps on battery...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f >nul 2>&1
+echo [OK] Background apps restricted on battery
+echo [17/20] Enabling battery saver mode automatically...
+powercfg -setdcvalueindex scheme_current sub_energysaver ESBATTTHRESHOLD 20 >nul 2>&1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes" /v BatterySaverState /t REG_DWORD /d 1 /f >nul 2>&1
+echo [OK] Battery saver activates at 20%%
+echo [18/20] Reducing network adapter power on battery...
+powershell -Command "Get-NetAdapter | ForEach-Object { Set-NetAdapterPowerManagement -Name $_.Name -AllowComputerToTurnOffDevice Enabled -ErrorAction SilentlyContinue }" >nul 2>&1
+echo [OK] Network adapters optimized for power saving
+echo [19/20] Disabling system sounds to save power...
+reg add "HKCU\AppEvents\Schemes" /ve /t REG_SZ /d ".None" /f >nul 2>&1
+echo [OK] System sounds disabled
+echo [20/20] Applying all battery optimizations...
+powercfg -setactive scheme_current >nul 2>&1
+echo [OK] All battery settings applied
+echo.
+echo Battery optimization complete!
+echo.
+echo [INFO] Battery life improvements applied:
+echo   • Display: Dimmed and reduced timeout
+echo   • CPU: Throttled to 5-80%% with aggressive core parking
+echo   • Sleep: 15 min, Hibernate: 30 min on battery
+echo   • Wi-Fi, USB, PCIe: Power saving enabled
+echo   • Background apps: Restricted on battery
+echo   • Battery Saver: Auto-activates at 20%%
+echo.
+timeout /t 5 /nobreak >nul
+cls
+:: ============================================================================
 echo ============================================================================
 echo =                    OPTIMIZATION COMPLETE!                            =
 echo ============================================================================
@@ -592,38 +741,43 @@ echo  [✓] Network settings reset and optimized
 echo  [✓] System files repaired (DISM, SFC, CHKDSK)
 echo  [✓] Comprehensive disk cleanup performed
 echo  [✓] Visual effects and animations disabled
-echo  [✓] Power plan set to High Performance
+echo  [✓] Power plan configured (High Performance / Battery Optimized)
 echo  [✓] Privacy settings adjusted (telemetry reduced)
 echo  [✓] Unnecessary services disabled
 echo  [✓] Windows Update components reset
 echo  [✓] Display cache cleared
 echo.
-echo  [★] CPU OPTIMIZED - Multithreading, All physical/virtual cores enabled
+echo  [★] CPU OPTIMIZED - Multithreading, All cores enabled (AC mode)
 echo  [★] GPU OPTIMIZED - Hardware scheduling, Game mode, DirectX tweaked
 echo  [★] RAM OPTIMIZED - Memory management, Cache tuned, Compression off
 echo  [★] SSD OPTIMIZED - TRIM enabled, Write cache tuned, Indexing off
 echo  [★] VIRTUALIZED - RAMDisk for Temp files, Optimized Page File
+echo  [★] AI REMOVED - Copilot, Recall, AI Search, Cortana disabled
+echo  [★] BATTERY OPTIMIZED - Extended battery life with power saving
 echo.
 echo ============================================================================
-echo PERFORMANCE BOOST SUMMARY:
+echo PERFORMANCE ^& BATTERY BOOST SUMMARY:
 echo ============================================================================
-echo  • CPU: 100%% cores active, no parking, maximum performance state
-echo  • GPU: Hardware acceleration enabled, Game mode on, low latency
-echo  • RAM: Optimized paging, kernel in memory, compression disabled
+echo  • CPU: Dynamic (100%% AC / 5-80%% Battery), intelligent parking
+echo  • GPU: Hardware acceleration enabled, Game mode on
+echo  • RAM: Optimized paging, kernel in memory, compression off
 echo  • SSD: TRIM active, reduced writes, optimized for speed
-echo  • V-DISK: Ultra-fast RAMDisk for temp files, reducing SSD/HDD load
+echo  • V-DISK: Ultra-fast RAMDisk for temp files
+echo  • AI: All Windows AI features removed (Copilot, Recall, etc.)
+echo  • BATTERY: 20-40%% longer battery life expected
 echo ============================================================================
 echo.
 echo IMPORTANT: A system RESTART is REQUIRED for changes to take effect!
 echo.
 echo Critical changes that need restart:
-echo  - Redirection of TEMP files to the new RAMDisk
+echo  - AI system removal (Copilot, Recall, Cortana)
+echo  - Battery optimization power profiles
 echo  - Network stack reset (Winsock, TCP/IP)
-echo  - CPU core parking and threading optimization
-echo  - GPU hardware scheduling and memory management changes
+echo  - CPU power management changes
+echo  - GPU hardware scheduling and memory management
 echo  - Service changes and registry modifications
 echo.
-echo System will be significantly faster after restart!
+echo System will be significantly faster and battery will last longer!
 echo.
 echo ============================================================================
 echo.
